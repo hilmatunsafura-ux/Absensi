@@ -57,6 +57,10 @@ dialog{border:1px solid var(--bd);border-radius:18px;background:var(--card);colo
 </div>
 <dialog id="dlg"></dialog>
 <script>
+// ====== GANTI DENGAN URL /exec DARI GOOGLE APPS SCRIPT KAMU ======
+const URL_SHEET='https://script.google.com/macros/s/AKfycbyKGfCABztxk3jfrsrj4vTXY1k-7tK2eL_pMKjN5HsRQllRdV6MJArr8f2d9jc8hLnlqA/exec';
+// =================================================================
+
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const day=()=>new Date().toLocaleDateString('sv-SE'),tm=t=>new Date(t).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
@@ -69,14 +73,25 @@ function render(){const a=S.att[day()]||{};$('#tgl').textContent=new Date().toLo
  $('#cnt').textContent=Object.keys(a).filter(n=>S.stu.some(s=>s.nim===n)).length+' / '+S.stu.length;
  $('#tb').innerHTML=S.stu.map(s=>`<tr><td>${esc(s.nama)}</td><td>${esc(s.nim)}</td><td>${a[s.nim]?tm(a[s.nim]):'<span class="dim">–</span>'}</td><td>${a[s.nim]?'<span class="pill ok">✓ Hadir</span>':'<span class="pill no">Belum</span>'}</td></tr>`).join('')||'<tr><td colspan="4" class="dim">Belum ada mahasiswa. Tambahkan di bagian 3.</td></tr>';
  $('#ml').innerHTML=S.stu.map(s=>`<tr><td>${esc(s.nim)}</td><td>${esc(s.nama)}</td><td style="text-align:right;white-space:nowrap"><button data-q="${esc(s.nim)}">▦ QR</button> <button data-x="${esc(s.nim)}">✕</button></td></tr>`).join('')||'<tr><td colspan="3" class="dim">Kosong.</td></tr>'}
+
+// Kirim data kehadiran ke Google Sheet
+function kirim(s,ts){
+ if(!URL_SHEET||URL_SHEET.indexOf('http')!==0)return;
+ fetch(URL_SHEET,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},
+  body:JSON.stringify({nim:s.nim,nama:s.nama,tanggal:day(),jam:tm(ts)})}).catch(()=>{});
+}
+
 function mark(nim){nim=String(nim).trim();const s=S.stu.find(x=>x.nim===nim);if(!s){say('NIM '+nim+' tidak terdaftar',false);return false}
  const d=day();S.att[d]=S.att[d]||{};if(S.att[d][nim]){say(s.nama+' sudah tercatat hadir',false);return false}
- S.att[d][nim]=Date.now();save();render();beep();say('✓ '+s.nama+' hadir',true);return true}
+ S.att[d][nim]=Date.now();kirim(s,S.att[d][nim]);save();render();beep();say('✓ '+s.nama+' hadir',true);return true}
 
 let sc=null,last=0;
 function onScan(t){const n=Date.now();if(n-last<2000)return;last=n;mark(t.startsWith('MHS:')?t.slice(4):t)}
 async function stop(){if(sc){const x=sc;sc=null;try{await x.stop();x.clear()}catch(e){}$('#go').textContent='📷 Buka Kamera'}}
-$('#go').onclick=async()=>{if(sc)return stop();try{sc=new Html5Qrcode('reader');await sc.start({facingMode:'environment'},{fps:10,qrbox:220},onScan);$('#go').textContent='⏹ Tutup Kamera'}catch(e){sc=null;say('Kamera tidak tersedia. Ketik NIM secara manual.',false)}};
+$('#go').onclick=async()=>{if(sc)return stop();
+ if(!window.isSecureContext){return say('Kamera butuh HTTPS. Buka lewat link https://...github.io, bukan file lokal.',false)}
+ try{sc=new Html5Qrcode('reader');await sc.start({facingMode:'environment'},{fps:10,qrbox:220},onScan);$('#go').textContent='⏹ Tutup Kamera'}
+ catch(e){sc=null;say('Kamera gagal: '+(e&&e.message?e.message:e)+'. Ketik NIM secara manual.',false)}};
 $('#mb').onclick=()=>{const v=$('#mn').value.trim();if(v){mark(v);$('#mn').value=''}};$('#mn').onkeydown=e=>{if(e.key==='Enter')$('#mb').click()};
 
 $('#ab').onclick=()=>{const n=$('#an').value.trim(),m=$('#am').value.trim();if(!n||!m)return say('Isi NIM dan nama dulu',false);if(S.stu.some(s=>s.nim===n))return say('NIM sudah ada',false);S.stu.push({nim:n,nama:m.toUpperCase()});$('#an').value=$('#am').value='';save();render()};
