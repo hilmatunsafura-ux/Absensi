@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Absensi QR</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+<style>
+:root{--bg:#f3f6fc;--card:#fff;--tx:#10223f;--mut:#64748b;--bd:#e4eaf4;--row:#f6f8fd;--p:#6366f1;--p2:#14b8a6;--ok:#047857;--okb:#d1fae5;--er:#b91c1c;--erb:#fee2e2;--sh:0 6px 24px rgba(16,34,63,.07);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1020;--card:#141b30;--tx:#e9eefc;--mut:#94a3c4;--bd:#25304d;--row:#18213a;--p:#818cf8;--p2:#2dd4bf;--ok:#4ad6a0;--okb:#0f3326;--er:#ff8a7d;--erb:#3d1713;--sh:0 6px 24px rgba(0,0,0,.35)}}
+:root[data-theme="dark"]{--bg:#0b1020;--card:#141b30;--tx:#e9eefc;--mut:#94a3c4;--bd:#25304d;--row:#18213a;--p:#818cf8;--p2:#2dd4bf;--ok:#4ad6a0;--okb:#0f3326;--er:#ff8a7d;--erb:#3d1713;--sh:0 6px 24px rgba(0,0,0,.35)}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5}
+.wrap{max-width:760px;margin:0 auto;padding:20px 16px 60px}
+.hd{display:flex;align-items:center;gap:12px;margin-bottom:18px;padding:20px 22px;border-radius:20px;color:#fff;background:linear-gradient(135deg,#6366f1,#14b8a6);box-shadow:0 10px 30px rgba(99,102,241,.3)}
+.hd h1{font-size:22px;margin:0}.hd p{margin:2px 0 0;font-size:13px;opacity:.9}
+.hd button{background:rgba(255,255,255,.2);border:0;color:#fff;width:40px;height:40px;border-radius:12px;padding:0}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:var(--sh)}
+h2{font-size:16px;margin:0 0 12px}.sub{color:var(--mut);font-size:13px;margin:0}
+button{font:600 14px inherit;cursor:pointer;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:11px;padding:10px 14px;transition:.15s}button:hover{border-color:var(--p)}
+button.p{background:linear-gradient(135deg,var(--p),var(--p2));border:0;color:#fff;box-shadow:0 6px 16px rgba(99,102,241,.3)}button.p:hover{filter:brightness(1.07)}
+input,textarea{width:100%;padding:11px 12px;border:1px solid var(--bd);border-radius:11px;background:var(--row);color:var(--tx);font:inherit}input:focus,textarea:focus{outline:2px solid var(--p);border-color:transparent}
+.r{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.r input{flex:1;min-width:130px}
+#reader{border-radius:14px;overflow:hidden;margin-top:10px;background:#000}
+#msg{margin-top:12px;padding:11px 13px;border-radius:12px;background:var(--row);font-size:14px;font-weight:600}#msg.ok{background:var(--okb);color:var(--ok)}#msg.er{background:var(--erb);color:var(--er)}
+.tw{overflow:auto;border:1px solid var(--bd);border-radius:14px;max-height:380px;margin-top:10px}
+table{width:100%;border-collapse:collapse;font-size:14px}th{text-align:left;font-size:11.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--mut);padding:10px;position:sticky;top:0;background:var(--row)}td{padding:10px;border-top:1px solid var(--bd)}
+tbody tr:hover td{background:var(--row)}
+.pill{display:inline-block;padding:3px 11px;border-radius:99px;font-size:12px;font-weight:700}.pill.ok{background:var(--okb);color:var(--ok)}.pill.no{background:var(--row);color:var(--mut);border:1px solid var(--bd)}
+.dim{color:var(--mut)}
+.cnt{display:inline-block;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;padding:2px 11px;border-radius:99px;font-size:13px;font-weight:700;margin-left:6px}
+dialog{border:1px solid var(--bd);border-radius:18px;background:var(--card);color:var(--tx);width:min(640px,94vw);padding:20px;box-shadow:var(--sh)}dialog::backdrop{background:rgba(5,8,20,.55)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;max-height:60vh;overflow:auto;margin:12px 0}
+.idc{border:1px solid var(--bd);border-radius:14px;padding:8px;text-align:center;background:#fff;color:#10223f;font-size:11px;font-weight:700}.idc canvas{width:100%;height:auto}
+@media print{.hd,.card,.noprint{display:none!important}dialog{position:static;border:0;box-shadow:none}.grid{max-height:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hd"><div style="flex:1"><h1>📋 Absensi QR</h1><p>Pindai kartu QR mahasiswa, hadir langsung tercatat</p></div><button id="th" title="Ganti tema">◐</button></header>
+
+<div class="card"><h2>1. Pindai QR Mahasiswa</h2><p class="sub">Mahasiswa menunjukkan kartu QR-nya, dosen memindai di sini.</p>
+<button class="p" id="go">📷 Buka Kamera</button>
+<div id="reader"></div>
+<div class="r"><input id="mn" placeholder="Atau ketik NIM lalu tekan Hadir" inputmode="numeric"><button id="mb">Hadir</button></div>
+<div id="msg" hidden></div></div>
+
+<div class="card"><h2>2. Hadir Hari Ini <span class="cnt" id="cnt"></span></h2><p class="sub" id="tgl"></p>
+<div class="tw"><table><thead><tr><th>Nama</th><th>NIM</th><th>Jam</th><th>Status</th></tr></thead><tbody id="tb"></tbody></table></div>
+<div class="r"><button id="csv">⬇ Ekspor CSV</button><button id="rst">Reset Hari Ini</button></div></div>
+
+<div class="card"><h2>3. Daftar Mahasiswa</h2>
+<div class="r" style="margin-top:0"><input id="an" placeholder="NIM" inputmode="numeric" style="max-width:160px"><input id="am" placeholder="Nama lengkap"><button class="p" id="ab">＋ Tambah</button></div>
+<div class="r"><button id="imp">⇪ Tempel Banyak Sekaligus</button><button id="cards">▦ Cetak Semua Kartu QR</button><button id="demo">✨ Isi Contoh</button></div>
+<div class="tw"><table><thead><tr><th>NIM</th><th>Nama</th><th></th></tr></thead><tbody id="ml"></tbody></table></div></div>
+</div>
+<dialog id="dlg"></dialog>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const day=()=>new Date().toLocaleDateString('sv-SE'),tm=t=>new Date(t).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+let S={stu:[],att:{}};try{const x=JSON.parse(localStorage.getItem('absen')||'null');if(x&&x.stu)S=x}catch(e){}
+const save=()=>{try{localStorage.setItem('absen',JSON.stringify(S))}catch(e){}};
+function say(t,ok){const m=$('#msg');m.hidden=false;m.textContent=t;m.className=ok?'ok':'er'}
+function beep(){try{const c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=880;g.gain.value=.08;o.start();o.stop(c.currentTime+.12)}catch(e){}}
+function drawQR(cv,text){const q=qrcode(0,'M');q.addData(text);q.make();const n=q.getModuleCount(),m=2,c=Math.floor(480/(n+m*2));cv.width=cv.height=c*(n+m*2);const x=cv.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,cv.width,cv.height);x.fillStyle='#000';for(let r=0;r<n;r++)for(let k=0;k<n;k++)if(q.isDark(r,k))x.fillRect((k+m)*c,(r+m)*c,c,c)}
+function render(){const a=S.att[day()]||{};$('#tgl').textContent=new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+ $('#cnt').textContent=Object.keys(a).filter(n=>S.stu.some(s=>s.nim===n)).length+' / '+S.stu.length;
+ $('#tb').innerHTML=S.stu.map(s=>`<tr><td>${esc(s.nama)}</td><td>${esc(s.nim)}</td><td>${a[s.nim]?tm(a[s.nim]):'<span class="dim">–</span>'}</td><td>${a[s.nim]?'<span class="pill ok">✓ Hadir</span>':'<span class="pill no">Belum</span>'}</td></tr>`).join('')||'<tr><td colspan="4" class="dim">Belum ada mahasiswa. Tambahkan di bagian 3.</td></tr>';
+ $('#ml').innerHTML=S.stu.map(s=>`<tr><td>${esc(s.nim)}</td><td>${esc(s.nama)}</td><td style="text-align:right;white-space:nowrap"><button data-q="${esc(s.nim)}">▦ QR</button> <button data-x="${esc(s.nim)}">✕</button></td></tr>`).join('')||'<tr><td colspan="3" class="dim">Kosong.</td></tr>'}
+function mark(nim){nim=String(nim).trim();const s=S.stu.find(x=>x.nim===nim);if(!s){say('NIM '+nim+' tidak terdaftar',false);return false}
+ const d=day();S.att[d]=S.att[d]||{};if(S.att[d][nim]){say(s.nama+' sudah tercatat hadir',false);return false}
+ S.att[d][nim]=Date.now();save();render();beep();say('✓ '+s.nama+' hadir',true);return true}
+
+let sc=null,last=0;
+function onScan(t){const n=Date.now();if(n-last<2000)return;last=n;mark(t.startsWith('MHS:')?t.slice(4):t)}
+async function stop(){if(sc){const x=sc;sc=null;try{await x.stop();x.clear()}catch(e){}$('#go').textContent='📷 Buka Kamera'}}
+$('#go').onclick=async()=>{if(sc)return stop();try{sc=new Html5Qrcode('reader');await sc.start({facingMode:'environment'},{fps:10,qrbox:220},onScan);$('#go').textContent='⏹ Tutup Kamera'}catch(e){sc=null;say('Kamera tidak tersedia. Ketik NIM secara manual.',false)}};
+$('#mb').onclick=()=>{const v=$('#mn').value.trim();if(v){mark(v);$('#mn').value=''}};$('#mn').onkeydown=e=>{if(e.key==='Enter')$('#mb').click()};
+
+$('#ab').onclick=()=>{const n=$('#an').value.trim(),m=$('#am').value.trim();if(!n||!m)return say('Isi NIM dan nama dulu',false);if(S.stu.some(s=>s.nim===n))return say('NIM sudah ada',false);S.stu.push({nim:n,nama:m.toUpperCase()});$('#an').value=$('#am').value='';save();render()};
+$('#ml').onclick=e=>{const q=e.target.closest('[data-q]'),x=e.target.closest('[data-x]');
+ if(q){const s=S.stu.find(v=>v.nim===q.dataset.q);$('#dlg').innerHTML=`<h2>Kartu QR</h2><div class="idc" style="max-width:240px;margin:auto"><canvas id="c1"></canvas>${esc(s.nama)}<br>${esc(s.nim)}</div><div class="r"><button class="p" id="sd">⬇ Unduh Gambar</button><button onclick="dlg.close()">Tutup</button></div>`;$('#dlg').showModal();drawQR($('#c1'),'MHS:'+s.nim);$('#sd').onclick=()=>{const a=document.createElement('a');a.download='QR-'+s.nim+'.png';a.href=$('#c1').toDataURL('image/png');a.click()}}
+ if(x){S.stu=S.stu.filter(v=>v.nim!==x.dataset.x);save();render()}};
+$('#cards').onclick=()=>{if(!S.stu.length)return say('Belum ada mahasiswa',false);$('#dlg').innerHTML=`<h2>Kartu QR (${S.stu.length})</h2><div class="grid">${S.stu.map((s,i)=>`<div class="idc"><canvas id="k${i}"></canvas>${esc(s.nama)}<br>${esc(s.nim)}</div>`).join('')}</div><div class="r noprint"><button class="p" id="pr">🖨 Cetak</button><button onclick="dlg.close()">Tutup</button></div>`;$('#dlg').showModal();S.stu.forEach((s,i)=>drawQR($('#k'+i),'MHS:'+s.nim));$('#pr').onclick=()=>{try{window.print()}catch(e){}}};
+$('#imp').onclick=()=>{$('#dlg').innerHTML=`<h2>Tempel Daftar Mahasiswa</h2><p class="sub">Satu baris per mahasiswa, format: NIM, Nama</p><textarea id="ta" rows="8" placeholder="2410511101, Aulia Rahma&#10;2410511102, Bima Pratama"></textarea><div class="r"><button class="p" id="is">Simpan</button><button onclick="dlg.close()">Batal</button></div>`;$('#dlg').showModal();
+ $('#is').onclick=()=>{const l=$('#ta').value.split('\n').map(x=>x.split(/[,\t;]/).map(y=>y.trim())).filter(x=>x[0]&&x[1]);if(!l.length)return;l.forEach(x=>{if(!S.stu.some(s=>s.nim===x[0]))S.stu.push({nim:x[0],nama:x[1].toUpperCase()})});save();render();$('#dlg').close()}};
+$('#demo').onclick=()=>{['Aulia Rahma','Bima Pratama','Citra Lestari','Dimas Saputra','Eka Putri'].forEach((n,i)=>{const nim='2410511'+(1101+i);if(!S.stu.some(s=>s.nim===nim))S.stu.push({nim,nama:n.toUpperCase()})});save();render()};
+$('#csv').onclick=()=>{const d=day(),a=S.att[d]||{},q=v=>'"'+String(v).replace(/"/g,'""')+'"',rows=[['NIM','Nama','Tanggal','Jam','Status'],...S.stu.map(s=>[s.nim,s.nama,d,a[s.nim]?tm(a[s.nim]):'',a[s.nim]?'Hadir':'Belum'])];
+ const el=document.createElement('a');el.download='absensi-'+d+'.csv';el.href=URL.createObjectURL(new Blob(['\ufeff'+rows.map(r=>r.map(q).join(',')).join('\n')],{type:'text/csv'}));el.click()};
+$('#rst').onclick=()=>{delete S.att[day()];save();render();say('Absensi hari ini direset',true)};
+$('#th').onclick=()=>{const d=document.documentElement,dk=d.dataset.theme?d.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches;d.dataset.theme=dk?'light':'dark'};
+render();
+</script>
+</body>
+</html>
